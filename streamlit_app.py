@@ -25,29 +25,41 @@ fruits_to_show = my_fruit_list.loc[fruits_selected]
 # Display the table on the page.
 streamlit.dataframe(fruits_to_show)
 
+
+# ----------------------------- #
 # New Section to display fruityvice API response
 streamlit.header("Fruityvice Fruit Advice!")
-fruit_choice = streamlit.text_input('What fruit would you like information about?','Kiwi')
-streamlit.write('The user entered ', fruit_choice)
+#fruit_choice = streamlit.text_input('What fruit would you like information about?','Kiwi')
+try:
+    fruit_choice = streamlit.text_input('What fruit would you like information about?')
+    if not fruit_choice:
+        streamlit.error("Please select a fruit to get information")
+    else:
+        fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
+        fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
+        streamlit.dataframe(fruityvice_normalized)
+
+except URLError as e:
+    streamlit.error()
+# streamlit.write('The user entered ', fruit_choice)
 
 
 
-fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
 #fruityvice_response = requests.get("https://fruityvice.com/api/fruit/watermelon")
 #fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + "kiwi")
 #streamlit.text(fruityvice_response)
 #streamlit.text(fruityvice_response.json())
 
 # Normalize semi-structured JSON data into a flat table.
-fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
-# Display a dataframe as an interactive table
-streamlit.dataframe(fruityvice_normalized)
+# fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
+# # Display a dataframe as an interactive table
+# streamlit.dataframe(fruityvice_normalized)
 
-
+# ----------------------------- #
 # stop streamlit while trouble shooting
 streamlit.stop()
 
-
+# ----------------------------- #
 # SECTION on SNOWFLAKE Connector
 my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
 my_cur = my_cnx.cursor()
@@ -61,7 +73,7 @@ my_data_row = my_cur.fetchall()
 streamlit.header("The fruit load list contains:")
 streamlit.dataframe(my_data_row)
 
-
+# ----------------------------- #
 # New Section to display second entry box
 # Allow end user to add a fruit to the list
 ###streamlit.text("What fruit would you like to add?")
