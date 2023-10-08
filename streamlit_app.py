@@ -38,7 +38,6 @@ def get_fruityvice_data(this_fruit_choice):
 # ----------------------------- #
 # New Section to display fruityvice API response
 streamlit.header("Fruityvice Fruit Advice!")
-#fruit_choice = streamlit.text_input('What fruit would you like information about?','Kiwi')
 try:
     fruit_choice = streamlit.text_input('What fruit would you like information about now?')
     if not fruit_choice:
@@ -55,17 +54,29 @@ except URLError as e:
 
 # ----------------------------- #
 # stop streamlit while trouble shooting
-streamlit.stop()
+# streamlit.stop()
 
 # ----------------------------- #
 # SECTION on SNOWFLAKE Connector
-my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-my_cur = my_cnx.cursor()
-my_cur.execute("select * from pc_rivery_db.public.fruit_load_list")
-my_data_row = my_cur.fetchall()
-
 streamlit.header("The fruit load list contains:")
-streamlit.dataframe(my_data_row)
+# Snowflake related functions
+def get_fruit_load_list():
+    with my_cnx.cursor() as  my_cur:
+        my_cur.execute("select * from fruit_load_list")
+        return my_cur.fetchall()
+
+# Add a button to load the fruit
+if streamlit.button('Get Fruit Load List');
+    my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+    my_data_rows = get_fruit_load_list()
+    streamlit.dataframe(my_data_rows)
+
+
+
+#my_cur.execute("select * from pc_rivery_db.public.fruit_load_list")
+
+
+streamlit.stop()
 
 # ----------------------------- #
 # New Section to display second entry box
